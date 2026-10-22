@@ -1,0 +1,44 @@
+{
+  "name": "kick-discord-bot",
+  "version": "1.0.0",
+  "description": "Kick Canlı Yayın ve Discord Entegrasyon Botu",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "test:canvas": "tsx scripts/test-canvas.ts"
+  },
+  "keywords": [
+    "kick",
+    "discord",
+    "bot",
+    "canvas",
+    "streaming"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@fastify/formbody": "^8.0.1",
+    "@napi-rs/canvas": "^0.1.65",
+    "@prisma/client": "^6.4.0",
+    "axios": "^1.7.9",
+    "bullmq": "^5.41.2",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "ioredis": "^5.5.0",
+    "ws": "^8.22.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/ws": "^8.18.2",
+    "prisma": "^6.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

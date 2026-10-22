@@ -1,0 +1,82 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Discord Sunucu Yapılandırması
+model GuildConfig {
+  guildId               String   @id // Discord Guild ID
+  kickChannelSlug       String?  // Takip edilen Kick kullanıcı adı (örn: "streamer")
+  kickChannelId         String?  // Kick Kanal ID (API'den dönen)
+  notificationChannelId String?  // Canlı yayın bildirim kanal ID
+  subscriberRoleId      String?  // Otomatik verilecek Abone Rol ID
+  vipRoleId             String?  // Otomatik verilecek VIP Rol ID
+  clipChannelId         String?  // Kliplerin atılacağı kanal ID
+  modLogChannelId       String?  // Kick moderatör log kanal ID
+  notificationRoleId    String?  // @everyone yerine etiketlenecek özel rol ID
+  customAnnouncementMessage String? @default("@everyone Yayındayızzz") // Özel duyuru metni
+  accentColor           String   @default("#53FC18") // Kick Yeşili
+  updateIntervalMinutes Int      @default(5) // Mesaj güncelleme aralığı (5 veya 10 dk)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  streamSessions        StreamSession[]
+  userLinks             UserLink[]
+}
+
+// Canlı Yayın Seansları ve Canlı Düzenlenen Mesaj Takibi
+model StreamSession {
+  id                String       @id @default(uuid())
+  guildId           String
+  guild             GuildConfig  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  kickChannelSlug   String
+  streamTitle       String
+  categoryName      String
+  startedAt         DateTime     @default(now())
+  endedAt           DateTime?
+  peakViewers       Int          @default(0)
+  currentViewers    Int          @default(0)
+  discordChannelId  String       // Bildirimin atıldığı kanal
+  discordMessageId  String       // Periyodik editlenen mesajın ID'si
+  isLive            Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+// Discord ve Kick Hesap Eşleşmeleri
+model UserLink {
+  id               String       @id @default(uuid())
+  guildId          String
+  guild            GuildConfig  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  discordUserId    String
+  kickUserId       String?
+  kickUsername     String?
+  verificationCode String?      // Örn: KICK-8492
+  codeExpiresAt    DateTime?
+  isVerified       Boolean      @default(false)
+  isSubscribed     Boolean      @default(false)
+  isVip            Boolean      @default(false)
+  subTier          Int?         @default(1)
+  linkedAt         DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  stats            UserStreamStats?
+
+  @@unique([guildId, discordUserId])
+}
+
+// İzleyici Sadakat ve İstatistik Verisi
+model UserStreamStats {
+  id                String   @id @default(uuid())
+  userLinkId        String   @unique
+  userLink          UserLink @relation(fields: [userLinkId], references: [id], onDelete: Cascade)
+  totalWatchMinutes Int      @default(0)
+  loyaltyPoints     Int      @default(0)
+  messagesSent      Int      @default(0)
+  lastSeenAt        DateTime @default(now())
+}
